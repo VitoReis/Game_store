@@ -13,6 +13,7 @@ int clientCount = 0;
 
 typedef struct Product{
     int id;
+    float price;
     char product[50];
     struct Product *next;
 }products;
@@ -21,8 +22,9 @@ int productCount = 0;
 
 typedef struct Purchase{
     int id;
+    float total;
     char client[50];
-    char productName[50];
+    char productName[1000];
     struct Purchase *next;
 }purchases;
 int purchaseCount = 0;
@@ -52,6 +54,8 @@ void registerProduct(products *newProducts){
     printf("\n\nWhat is your product name? ");
     fflush(stdin);
     scanf("%50[^\n]", newProducts->product);
+    printf("\n\nWhat is the price of your product? ");
+    scanf("%f", &newProducts->price);
     newProducts->id = productCount;
     productCount++;
     printf("\n");
@@ -61,7 +65,7 @@ void registerProduct(products *newProducts){
 void showProducts(products *productsPointer){
     for(int i = 0; i < productCount; i++){
         printf("\n************************\n");
-        printf("Product: %s\nId: %d", productsPointer->product, productsPointer->id);
+        printf("Product: %s\nPrice: %.2f\nId: %d", productsPointer->product, productsPointer->price, productsPointer->id);
         printf("\n************************\n");
         productsPointer = productsPointer->next;
     }
@@ -69,12 +73,15 @@ void showProducts(products *productsPointer){
 
 
 int registerPurchase(clients *clientsPointer, products *productsPointer, purchases *newPurchases){
-    int id, found = 0;
+    int id, found = 0, choice = 1;
+    float totalPrice = 0;
+    char product[50], clientName[50], purchasedProducts[1000] = "";
     printf("\n\nWhat is your client id? ");                 // Check for client
     scanf("%i", &id);
+
     for(int i = 0; i < clientCount; i++){
         if(clientsPointer->id == id){
-            strcpy(newPurchases->client, clientsPointer->name);
+            strcpy(clientName, clientsPointer->name);
             found = 1;
             break;
         }
@@ -85,21 +92,44 @@ int registerPurchase(clients *clientsPointer, products *productsPointer, purchas
         return 0;
     }
 
-    found = 0;
-    printf("\n\nWhat is your product id? ");                 // Check for product
-    scanf("%i", &id);
-    for(int i = 0; i < productCount; i++){
-        if(productsPointer->id == id){
-            strcpy(newPurchases->productName, productsPointer->product);
-            found = 1;
+    do{
+        found = 0;
+        printf("\n\nWhat is your product id? ");                 // Check for product
+        scanf("%i", &id);
+        for(int i = 0; i < productCount; i++){
+            if(productsPointer->id == id){
+                if(strlen(purchasedProducts) > 0){
+                    strcat(purchasedProducts, ", ");            // Add ', ' after the last product name
+                }
+                strcat(purchasedProducts, productsPointer->product);
+                totalPrice += productsPointer->price;
+                found = 1;
+                break;
+            }
+            productsPointer = productsPointer->next;
+        }
+        if(!found){
+            printf("\nERRO: Product not found\n");
+            return 0;
+        }
+        printf("Do you want to add one more product?\n1 - Yes\n2 - No\n");
+        scanf("%d", &choice);
+        switch(choice){
+            case 1:
+            break;
+            case 2:
+            break;
+            default:
+                printf("\nERROR: Option not available, returning to main menu...\n");
+                return 0;
             break;
         }
-        productsPointer = productsPointer->next;
-    }
-    if(!found){
-        printf("\nERRO: Product not found\n");
-        return 0;
-    }
+    }while(choice != 2);
+    
+    // Saves data at the end to avoid errors
+    strcpy(newPurchases->client, clientName);
+    strcpy(newPurchases->productName, purchasedProducts);
+    newPurchases->total = totalPrice;
     newPurchases->id = purchaseCount;
     purchaseCount++;
     printf("\n");
@@ -109,7 +139,7 @@ int registerPurchase(clients *clientsPointer, products *productsPointer, purchas
 void showPurchases(purchases *purchasesPointer){
     for(int i = 0; i < purchaseCount; i++){
         printf("\n************************\n");
-        printf("Client: %s\nProduct: %s\nId: %d", purchasesPointer->client, purchasesPointer->productName, purchasesPointer->id);
+        printf("Client: %s\nProducts: %s\nPrice: %.2f\nId: %d", purchasesPointer->client, purchasesPointer->productName, purchasesPointer->total, purchasesPointer->id);
         printf("\n************************\n");
         purchasesPointer = purchasesPointer->next;
     }
