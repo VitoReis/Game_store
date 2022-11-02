@@ -8,3 +8,8 @@ On this store you can:
 - Show all clients;
 - Show all products;
 - Show all purchases.
+
+# Compile and execute
+gcc main.c -o main
+
+**main** or **./main**
