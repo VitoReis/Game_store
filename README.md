@@ -1,5 +1,5 @@
 # Game_store
-This is a simple code just to practice C.3
+This is a simple code just to practice C.
 
 On this store you can:
 - Register clients;
